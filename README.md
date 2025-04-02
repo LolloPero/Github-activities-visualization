@@ -1,6 +1,9 @@
 # Fraudulent-Financial-Transaction-Prediction
 Data Engineering Zoomcamp 2025 final project.
 
+Dataset:
+https://www.kaggle.com/api/v1/datasets/download/younusmohamed/fraudulent-financial-transaction-prediction
+
 ## Problem Statement
 
 ## Objective
