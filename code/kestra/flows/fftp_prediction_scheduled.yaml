@@ -1,5 +1,5 @@
 
-id: 06_gcp_taxi_scheduled
+id: fftp_prediciton_scheduled.yaml
 namespace: zoomcamp
 description: |
   Pipeline to upload fraudolent datasets to Google Cloud a GCS Bucket
