@@ -8,6 +8,7 @@ variable "credentials" {
 
 variable "project" {
   description = "Project"
+  #Update the below to your Project ID
   default     = "fft-prediction"
 }
 

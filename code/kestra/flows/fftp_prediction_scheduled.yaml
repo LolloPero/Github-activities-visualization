@@ -1,0 +1,86 @@
+
+id: 06_gcp_taxi_scheduled
+namespace: zoomcamp
+description: |
+  Pipeline to upload fraudolent datasets to Google Cloud a GCS Bucket
+
+variables:
+  files_to_upload:
+  - "train.csv"
+  - "test_share.csv"
+  - "instance_scores.csv"
+  - "Qset_tats.csv"
+  - "Lambda_wts.csv"
+  - "Geo_scores.csv"
+  
+tasks:
+  - id: set_label
+    type: io.kestra.plugin.core.execution.Labels
+    labels:
+      file: "Upload all Files"
+
+  - id: extract
+   type: io.kestra.plugin.scripts.shell.Commands
+   outputFiles:
+     - "train.csv"
+     - "test_share.csv"
+     - "instance_scores.csv"
+     - "Qset_tats.csv"
+     - "Lambda_wts.csv"
+     - "Geo_scores.csv"
+   taskRunner:
+     type: io.kestra.plugin.core.runner.Process
+   commands:
+     - curl -L -o fraudulent-financial-transaction-prediction.zip "https://www.kaggle.com/api/v1/datasets/download/younusmohamed/fraudulent-financial-transaction-prediction"
+     - unzip fraudulent-financial-transaction-prediction.zip
+     - rm fraudulent-financial-transaction-prediction.zip  # Cleanup after extraction
+    
+  - id: upload_to_datalake
+   type: io.kestra.plugin.core.flow.ForEach
+  values: 
+     - "{{ outputs.extract['outputFiles']['train.csv'] }}"
+     - "{{ outputs.extract['outputFiles']['test_share.csv'] }}"
+     - "{{ outputs.extract['outputFiles']['instance_scores.csv'] }}"
+     - "{{ outputs.extract['outputFiles']['Qset_tats.csv'] }}"
+     - "{{ outputs.extract['outputFiles']['Geo_scores.csv'] }}"
+   concurrencyLimit: 1
+   tasks:
+   - id: upload_to_gcs
+     type: io.kestra.plugin.gcp.gcs.Upload
+     from: "{{ taskrun.value }}"
+     to: "gs://{{kv('GCP_BUCKET_NAME')}}/{{ taskrun.value | split('/') | last | split('-') | last}}"
+
+  - id: upload_to_datawarehouse
+   type: io.kestra.plugin.core.flow.ForEach
+   values: 
+       - "train"
+       - "test_share"
+       - "instance_scores"
+       - "Qset_tats"
+       - "Geo_scores"
+   concurrencyLimit: 1
+   tasks:
+     - id: upload_to_gcs
+       type: io.kestra.plugin.gcp.bigquery.Query
+       sql: |
+         CREATE OR REPLACE EXTERNAL TABLE `{{kv('GCP_PROJECT_ID')}}.{{kv('GCP_DATASET')}}.{{taskrun.value}}_ext`
+         OPTIONS (
+             format = 'CSV',
+             uris = ['gs://{{kv('GCP_BUCKET_NAME')}}/{{taskrun.value}}.csv']
+         );
+         CREATE OR REPLACE TABLE `{{kv('GCP_PROJECT_ID')}}.{{kv('GCP_DATASET')}}.{{taskrun.value}}` AS
+         SELECT * FROM `{{kv('GCP_PROJECT_ID')}}.{{kv('GCP_DATASET')}}.{{taskrun.value}}_ext`;
+
+
+  - id: purge_files
+    type: io.kestra.plugin.core.storage.PurgeCurrentExecutionFiles
+    description: To avoid cluttering your storage, we will remove the downloaded files
+
+
+pluginDefaults:
+  - type: io.kestra.plugin.gcp
+    values:
+      serviceAccount: "{{kv('GCP_CREDS')}}"
+      projectId: "{{kv('GCP_PROJECT_ID')}}"
+      location: "{{kv('GCP_LOCATION')}}"
+      bucket: "{{kv('GCP_BUCKET_NAME')}}"
