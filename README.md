@@ -65,10 +65,11 @@ Kestra is used in this project to automate the upload of data to a Data Lake (Go
 To execute the Kestra pipeline, follow these steps:
 
 2.1) Spin docker containers - this will launch Kestra Application and its dependencies:
-    ```shell
-    cd code/kestra
-    docker-compose up
-    ```
+
+  ```shell
+  cd code/kestra
+  docker-compose up
+  ```
 
  2.2) Setup key-value pairs in Kestra UI to register your Cloud resources (created at step 1)
  * connect to Kestra by entering *http://localhost:8080/* in your web browser of choice
@@ -81,14 +82,18 @@ To execute the Kestra pipeline, follow these steps:
     * *GCP_DATASET* : your google cloud bigquery dataset name
    
  2.3) Uplaod kestra flow to kestra service:
-     ```shell
+ 
+  ```shell
     cd code/kestra/flows
-    curl -X POST http://localhost:8080/api/v1/flows/import -F fileUpload=@fftp_prediction_scheduled.yaml
-    ```
+    curl -X POST http://localhost:8080/api/v1/flows/import -F fileUpload=@github_activities_ingestion.yaml
+  ```
 
- 2.4) Manually trigger Flow execution from Kestra UI
+ 2.4) Manually trigger backfill Flow execution from Kestra UI:
+ * Navigate to _Flows_ -> _github_activities_ingestion_ -> Triggers -> _Backfill executions_
+ * Entert the **Start** date as _2015-01-01 00:00:00_ and the **End** date as _2015-12-31 00:00:00_
+ * Click on _Execute backfill_
 
- 2.5) If your Kestra workflow is successful, you should see .csv files uploaded in your Google Cloud Bucket, and Tables created in your Google Cloud Query instance
+ 2.5) If your Kestra baackfill workflow is successful (it will take ~15 mins to complete), you should see .json files uploaded in your Google Cloud Bucket, and Tables created in your Google Cloud Query instance
 
 
 ### 3) DBT
