@@ -77,7 +77,7 @@ To execute the Kestra pipeline, follow these steps:
     * *GCP_CREDS* : store json file to access your Google Cloud Project (see point 1.3.2)
     * *GCP_BUCKET_NAME* :  your google cloud bucket id
     * *GCP_PROJECT_ID* : your google cloud project id
-    * *GCP_LOCATION_ID* : your google cloud project location (EU, US..)
+    * *GCP_LOCATION* : your google cloud project location (EU, US..)
     * *GCP_DATASET* : your google cloud bigquery dataset name
    
  2.3) Uplaod kestra flow to kestra service:
