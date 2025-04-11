@@ -227,8 +227,6 @@ Rename the report as **Github activity Analysis**.
 
 #### Repos activity count by type
 
-![](res/looker-weekly-member-type.png)
-
 1. **Add a chart** > **Bar chart**
 2. _Dimension_ = `repo_name`
 3. _Breakdown dimension_ = `event_type`
