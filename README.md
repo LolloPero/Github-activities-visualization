@@ -34,6 +34,8 @@ The data includes the following fields:
 
 ## Data pipeline
 
+![](docs/pipeline.png)
+
 ## Data visualization
 
   
