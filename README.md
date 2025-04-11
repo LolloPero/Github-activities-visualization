@@ -37,7 +37,7 @@ The data includes the following fields:
 ![](docs/pipeline.png)
 
 ## Data visualization
-
+![](docs/Github_contributions.pdf)
   
 ## Installation and Execution
 
