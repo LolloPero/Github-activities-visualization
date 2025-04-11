@@ -1,15 +1,42 @@
-# Fraudulent-Financial-Transaction-Prediction
-Data Engineering Zoomcamp 2025 final project.
-
-Dataset:
-https://www.kaggle.com/api/v1/datasets/download/younusmohamed/fraudulent-financial-transaction-prediction
+# Github activities visualization
+This is my submission for [Data Engineering Zoomcamp 2025](https://github.com/DataTalksClub/data-engineering-zoomcamp) final project.
 
 ## Problem Statement
+[GH Archive](https://www.gharchive.org/) is a project to record the public GitHub timeline, archive it, and make it easily accessible for further analysis. In this project I have created a pipeline to analyse Github activites data between `Jan 2015` and `Dec 2015` to answer the following questions:
 
-## Objective
+- How do github events (Push, PullRequest, IssuesRequest, etc.) vary over time?
+- Which github events are most recurrent?
+- Which github repos have been the most active? Which github events contributed the most?
+
+## Data
+
+This data used in this project is extracted from [GH Archive](https://www.gharchive.org/).
+
+The data includes the following fields:
+- id
+- public
+- repo
+- payload
+- actor
+- org
+- created_at
+- type
 
 ## Tech Stack
 
+- **Docker** (containerization)
+- **Terraform** (infrastructure as code)
+- **Kestra** (workflow orchestration)
+- **Google Cloud Storage** (data lake)
+- **BigQuery** (data warehouse)
+- **dbt** (data transformation)
+- **Looker Studio** (data visualization)
+
+## Data pipeline
+
+## Data visualization
+
+  
 ## Installation and Execution
 
 ### 0) Prerequites
@@ -98,4 +125,86 @@ To execute the Kestra pipeline, follow these steps:
 
 ### 3) DBT
 
-## FInd
+#### Create a dbt cloud project
+Create a dbt user account by going to [dbt homepage](https://www.getdbt.com/) and signing up for a free account.
+
+Non-enterprise account can have only one project. Navigate to _Account_ > _Projects_ to delete any old project. Now we can go to the homepage to setup a new project.
+
+Choose **BigQuery** as the data warehouse.
+
+* Upload the service account key json file in the create from file option. This will fill out most fields related to the production credentials.
+* Scroll down to the end of the page and set up the development credentials.
+* Click on **Test Connection** > **Next**.
+* Finally, add this GitHub repository Bby selecting the *Git Clone* option. Navigate to **Account** > **Projects** to specify the project subdirectory which is _code/dbt_.
+
+Navigate to **Develop** tab on the top to view the project.
+
+dbt does not allow us to work on the main branch after this, hence we need to create a new branch.
+
+#### Build the dbt project
+
+Go to the file `code\dbt\models\staging\schema.yml` in the dbt console
+- Change `database` to your BigQuery dataset name
+- Change `schema` to your BigQuery schema name
+- Save changes
+
+If we click on the **Lineage** tab in the bottom, we should see this diagram:
+
+![](res/dbt-lineage.png)
+
+To build the project run:
+```bash
+dbt build
+```
+
+![](res/dbt-build.png)
+
+dbt docs can be generated on the cloud or locally with `dbt docs generate`, and can be hosted in dbt Cloud as well or on any other webserver by running `dbt docs serve`
+
+Now, if we navigate to BigQuery we will be able to see the tables created by dbt.
+
+![](res/bigquery-dbt-tables.png)
+
+To test if the data has been correctly uploaded, run the following SQL code:
+```sql
+select count(*)
+from `<your_BQ_dataset>.<your_BQ_schema>.eventsS_repositoryA_userC`;
+```
+It should return `**`
+
+
+### 4) Visualize with Looker Studio
+
+Navigate to [Google Looker Studio](https://lookerstudio.google.com/). 
+
+Click on **Create** > **Data source** > **BigQuery** > authorize BigQuery > select the Project (`github`) > Dataset (`github_activities`) > Table (`eventsS_repositoryA_userC`) > **CONNECT**.
+
+![](res/looker-studio-bigquery.png)
+
+Click on **CREATE REPORT** > **ADD TO REPORT**.
+
+Rename the report as **Github activity Analysis**.
+
+#### Github count activities by type over time
+
+1. **Add a chart** > **Stacked column chart**
+2. _Dimension_ = `event_date`,
+3. _Breakdown dimension_ = `event_type`
+4.  _Metric_ = `record_count`
+
+
+#### Github event types percentage
+
+1. **Add a chart** > **Pie chart**
+2. _Date range dimension_ = `event_date`
+3. _Dimension_ = `event_type`
+4. _Metric_ = `Record Count`
+
+#### Repos activity count by type
+
+![](res/looker-weekly-member-type.png)
+
+1. **Add a chart** > **Bar chart**
+2. _Dimension_ = `repo_name`
+3. _Breakdown dimension_ = `event_type`
+4. Metric = `event_count`
