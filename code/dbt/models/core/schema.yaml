@@ -1,0 +1,36 @@
+version: 2
+
+models:
+
+  - name: events_summary
+    description: >
+      Track volume and type of activity over time.
+
+  - name: repository_activity
+    description: >
+      Analyze repo-level contributions over time.
+
+  - name: user_contributions
+    description: >
+      Track contributions per user.
+
+  - name: eventsS_userC
+    description: >
+      Analyze the type of user contributions over time and their associated events.
+      How many lines were added or deleted per event type?
+      Are certain events (like PushEvent) correlated with high code churn?
+  
+  - name: repositoryA_userC
+    description: >
+     Compare user-level and repo-level contributions side by side.
+     This is great for understanding which users are contributing most to active repos.
+     Which repos are getting the most user engagement?
+     Is high repo activity driven by a few super-contributors?
+  
+  - name: eventsS_repositoryA_userC
+    description: >
+      A holistic view of contributions by event type, per user and repo.
+      What types of events produce the most code changes per repo?
+      How do users contribute differently depending on the event type?
+
+  

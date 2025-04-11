@@ -1,0 +1,9 @@
+version: 2
+
+sources:
+  - name: staging
+    database: fft-prediction
+    schema: fftp_bq_dataset
+
+    tables:
+      - name: github
